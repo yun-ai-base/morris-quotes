@@ -26,9 +26,27 @@
   --accent5: #7a4ac9;
   --accent6: #c94a7a;
 }
+[data-theme="light"] {
+  --bg: #f5f2ed;
+  --surface: #ffffff;
+  --surface2: #f0ece6;
+  --border: #d9d2c8;
+  --text: #2c2a28;
+  --text-dim: #6b6560;
+  --text-muted: #9a9490;
+  --gold: #b8962e;
+  --gold-dim: #a08028;
+  --gold-bg: rgba(184,150,46,0.08);
+  --accent1: #c0392b;
+  --accent2: #2980b9;
+  --accent3: #27ae60;
+  --accent4: #d35400;
+  --accent5: #8e44ad;
+  --accent6: #c0396a;
+}
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
+html { scroll-behavior: smooth; transition: background 0.3s; }
+body { transition: background 0.3s, color 0.3s; }
   font-family: 'Noto Sans SC', -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
@@ -95,6 +113,11 @@ body::before {
   background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); transition: all 0.25s; white-space: nowrap;
 }
 .btn-random:hover { color: var(--gold); border-color: var(--gold-dim); background: var(--gold-bg); }
+.btn-theme {
+  padding: 6px 12px; border-radius: 20px; font-size: 14px; cursor: pointer;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); transition: all 0.25s; line-height: 1;
+}
+.btn-theme:hover { color: var(--gold); border-color: var(--gold-dim); background: var(--gold-bg); }
 
 .container { max-width: 880px; margin: 0 auto; padding: 40px 24px 60px; }
 
@@ -143,11 +166,39 @@ body::before {
 .quote-stars { font-size: 12px; letter-spacing: 1px; color: var(--gold-dim); }
 .quote-stars .filled { color: var(--gold); }
 .quote-tag { font-size: 10px; padding: 2px 10px; border-radius: 10px; border: 1px solid var(--border); color: var(--text-muted); font-weight: 500; }
+.quote-related {
+  margin-top: 12px; padding: 12px 16px; border-radius: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  font-size: 12px; line-height: 1.7;
+}
+.quote-related .rl-label { font-size: 10px; font-weight: 600; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
+.quote-related .rl-item {
+  display: inline-block; padding: 2px 10px; margin: 2px 4px 2px 0;
+  border-radius: 6px; background: var(--gold-bg); border: 1px solid var(--gold-dim);
+  color: var(--gold); cursor: pointer; font-size: 12px; transition: all 0.2s;
+}
+.quote-related .rl-item:hover { background: var(--gold-dim); color: #fff; }
+.btn-share {
+  font-size: 10px; padding: 2px 10px; border-radius: 10px; border: 1px solid var(--border);
+  color: var(--text-muted); background: transparent; cursor: pointer; font-weight: 500; transition: all 0.2s; margin-left: auto;
+}
+.btn-share:hover { color: var(--accent2); border-color: var(--accent2); }
+@keyframes highlightFlash {
+  0% { background: var(--gold-bg); border-color: var(--gold); }
+  100% { background: var(--surface); border-color: var(--border); }
+}
+.quote-inner.flash { animation: highlightFlash 2s ease; }
 
 .footer { text-align: center; padding: 40px 24px 60px; border-top: 1px solid var(--border); max-width: 880px; margin: 0 auto; }
 .footer p { font-size: 13px; color: var(--text-muted); }
 .footer a { color: var(--gold); text-decoration: none; }
 .footer a:hover { text-decoration: underline; }
+.btn-export {
+  display: inline-block; margin-top: 16px; padding: 8px 18px; border-radius: 10px;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim);
+  font-size: 13px; cursor: pointer; transition: all 0.2s;
+}
+.btn-export:hover { color: var(--gold); border-color: var(--gold-dim); background: var(--gold-bg); }
 
 .modal-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; padding: 24px; }
 .modal-overlay.show { display: flex; }
@@ -157,6 +208,29 @@ body::before {
 .modal-box .quote-note { margin-top: 16px; }
 .modal-close { margin-top: 24px; padding: 8px 20px; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); font-size: 13px; cursor: pointer; transition: all 0.2s; }
 .modal-close:hover { color: var(--text); border-color: var(--text-muted); }
+.share-modal { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; padding: 24px; }
+.share-modal.show { display: flex; }
+.share-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; max-width: 520px; width: 100%; animation: modalIn 0.3s ease; }
+.share-box .share-preview {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; margin-bottom: 20px;
+  font-family: 'Noto Serif SC', serif; font-size: 15px; line-height: 1.9; color: var(--text);
+  min-height: 200px; display: flex; flex-direction: column; justify-content: center;
+}
+.share-box .share-preview .sp-num { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+.share-box .share-preview .sp-text { flex: 1; }
+.share-box .share-preview .sp-meta { margin-top: 16px; font-size: 11px; color: var(--text-muted); font-family: 'Noto Sans SC', sans-serif; }
+.share-box .share-actions { display: flex; gap: 10px; }
+.share-box .share-actions button {
+  flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text-dim); font-size: 13px; cursor: pointer; transition: all 0.2s;
+}
+.share-box .share-actions button:hover { color: var(--gold); border-color: var(--gold-dim); background: var(--gold-bg); }
+.share-box .share-close {
+  display: block; margin-top: 12px; width: 100%; padding: 8px; border-radius: 10px;
+  border: none; background: transparent; color: var(--text-muted); font-size: 12px; cursor: pointer;
+}
+.share-box .share-close:hover { color: var(--text-dim); }
+.share-canvas-wrap { display: none; } /* hidden canvas container for image generation */
 
 .scroll-top { position: fixed; bottom: 30px; right: 30px; z-index: 50; width: 40px; height: 40px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); font-size: 18px; cursor: pointer; display: none; align-items: center; justify-content: center; transition: all 0.25s; }
 .scroll-top:hover { color: var(--gold); border-color: var(--gold-dim); }
@@ -194,6 +268,7 @@ body::before {
     <div id="tabContainer"></div>
     <span class="controls-spacer"></span>
     <button class="btn-random" id="btnRandom">🎲 随机一句</button>
+    <button class="btn-theme" id="btnTheme" title="切换日间/夜间模式">🌙</button>
   </div>
 </nav>
 
@@ -203,8 +278,25 @@ body::before {
   <div class="modal-box" id="modalBox"></div>
 </div>
 
+<div class="share-modal" id="shareModal">
+  <div class="share-box" id="shareBox">
+    <div class="share-preview" id="sharePreview">
+      <div class="sp-num" id="spNum"></div>
+      <div class="sp-text" id="spText"></div>
+      <div class="sp-meta" id="spMeta"></div>
+    </div>
+    <div class="share-actions">
+      <button id="shareCopy">📋 复制文字</button>
+      <button id="shareImage">🖼️ 保存图片</button>
+    </div>
+    <button class="share-close" onclick="document.getElementById('shareModal').classList.remove('show')">取消</button>
+  </div>
+</div>
+<div class="share-canvas-wrap" id="shareCanvasWrap"></div>
+
 <div class="footer">
   <p>内容源自 X 平台 <a href="https://x.com/Morris_LT" target="_blank">@Morris_LT</a> · 分类整理与可视化</p>
+  <button class="btn-export" id="btnExport">📥 导出 Markdown</button>
 </div>
 
 <button class="scroll-top" id="scrollTop">↑</button>
@@ -727,9 +819,11 @@ categories.forEach(c => {
         <div class="quote-content">${q.text}</div>
         ${q.note ? `<div class="quote-note"><div class="note-label">🧠 智慧点评</div>${q.note}</div>` : ''}
         ${q.knowledge ? `<div class="quote-knowledge"><div class="knowledge-label">📚 知识拓展</div>${q.knowledge}</div>` : ''}
+        <div class="quote-related" id="rl-${q.id}"></div>
         <div class="quote-meta">
           ${stars(q.stars)}
           <span class="quote-tag">${c.icon} ${c.name}</span>
+          <button class="btn-share" data-id="${q.id}">🔗 分享</button>
         </div>
       </div>
     `;
@@ -787,11 +881,223 @@ document.getElementById('btnRandom').addEventListener('click', () => {
 document.getElementById('modal').addEventListener('click', (e) => {
   if (e.target === e.currentTarget) e.target.classList.remove('show');
 });
+document.getElementById('shareModal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) e.target.classList.remove('show');
+});
 
 // Scroll top
 const scrollBtn = document.getElementById('scrollTop');
 window.addEventListener('scroll', () => { scrollBtn.style.display = window.scrollY > 600 ? 'flex' : 'none'; });
 scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// ====== 关联推荐 ======
+function computeRelated() {
+  quotes.forEach(q => {
+    const sameCat = quotes.filter(x => x.id !== q.id && x.cat === q.cat);
+    const byStar = sameCat.filter(x => Math.abs(x.stars - q.stars) <= 1);
+    const pool = byStar.length >= 2 ? byStar : sameCat;
+    q.related = pool.sort((a, b) => b.stars - a.stars).slice(0, 3);
+  });
+}
+computeRelated();
+
+function renderRelated() {
+  quotes.forEach(q => {
+    const el = document.getElementById('rl-' + q.id);
+    if (!el || !q.related || q.related.length === 0) return;
+    const c = categories.find(x => x.id === q.cat);
+    el.innerHTML = '<div class="rl-label">📎 相关语录</div>' +
+      q.related.map(r => {
+        const rc = categories.find(x => x.id === r.cat);
+        return `<span class="rl-item" data-target="${r.id}" style="border-color:${rc?rc.color+'40':''}">${rc?rc.icon:''} #${r.id}</span>`;
+      }).join('');
+    el.querySelectorAll('.rl-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const target = document.querySelector(`.quote-inner[data-id="${item.dataset.target}"]`) ||
+          [...document.querySelectorAll('.quote-number')].find(el => el.textContent === '#' + item.dataset.target)?.closest('.quote-inner');
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          target.classList.remove('flash');
+          void target.offsetWidth;
+          target.classList.add('flash');
+        }
+      });
+    });
+  });
+}
+
+// ====== 日间模式 ======
+(function initTheme() {
+  const saved = localStorage.getItem('morris-theme');
+  if (saved === 'light') {
+    document.documentElement.dataset.theme = 'light';
+    document.getElementById('btnTheme').textContent = '☀️';
+  }
+})();
+
+document.getElementById('btnTheme').addEventListener('click', () => {
+  const isLight = document.documentElement.dataset.theme === 'light';
+  document.documentElement.dataset.theme = isLight ? '' : 'light';
+  document.getElementById('btnTheme').textContent = isLight ? '🌙' : '☀️';
+  localStorage.setItem('morris-theme', isLight ? '' : 'light');
+});
+
+// ====== 分享 ======
+let shareQuoteId = null;
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.btn-share');
+  if (!btn) return;
+  shareQuoteId = parseInt(btn.dataset.id);
+  const q = quotes.find(x => x.id === shareQuoteId);
+  const c = categories.find(x => x.id === q.cat);
+  document.getElementById('spNum').textContent = `#${q.id} · ${c.icon} ${c.name}`;
+  document.getElementById('spText').textContent = q.text;
+  document.getElementById('spMeta').textContent = `★ ${'★'.repeat(q.stars)}${'☆'.repeat(5-q.stars)}  ·  @Morris_LT`;
+  document.getElementById('shareModal').classList.add('show');
+});
+
+document.getElementById('shareCopy').addEventListener('click', async () => {
+  const q = quotes.find(x => x.id === shareQuoteId);
+  const c = categories.find(x => x.id === q.cat);
+  const text = `「${q.text}」\n—— #${q.id} ${c.icon} ${c.name} · @Morris_LT\n${'★'.repeat(q.stars)}${'☆'.repeat(5-q.stars)}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    document.getElementById('shareCopy').textContent = '✅ 已复制';
+    setTimeout(() => { document.getElementById('shareCopy').textContent = '📋 复制文字'; }, 2000);
+  } catch {
+    alert('复制失败，请手动复制');
+  }
+});
+
+document.getElementById('shareImage').addEventListener('click', () => {
+  const q = quotes.find(x => x.id === shareQuoteId);
+  if (!q) return;
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const bgColor = isLight ? '#f5f2ed' : '#0f0e0d';
+  const surfaceColor = isLight ? '#ffffff' : '#181716';
+  const textColor = isLight ? '#2c2a28' : '#e6e2da';
+  const dimColor = isLight ? '#6b6560' : '#8a867e';
+  const goldColor = '#c9a84c';
+  const padding = 40;
+  const maxW = 500;
+  const lineH = 28;
+  const titleH = 30;
+
+  const lines = [];
+  let cur = '';
+  const measCtx = document.createElement('canvas').getContext('2d');
+  measCtx.font = '16px "Noto Serif SC", serif';
+  for (const ch of q.text) {
+    cur += ch;
+    if (measCtx.measureText(cur).width > maxW - 2 * padding) {
+      lines.push(cur.slice(0, -1));
+      cur = ch;
+    }
+  }
+  if (cur) lines.push(cur);
+  const textH = lines.length * lineH;
+  const h = textH + titleH + 140;
+  const w = 500;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, w, h);
+
+  // Card surface
+  ctx.fillStyle = surfaceColor;
+  roundRect(ctx, 16, 16, w - 32, h - 32, 16);
+
+  // Gold accent line
+  ctx.fillStyle = goldColor;
+  ctx.fillRect(28, 56, 44, 3);
+
+  // Number
+  ctx.fillStyle = dimColor;
+  ctx.font = '11px "Noto Sans SC", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('# ' + q.id, 28, 46);
+
+  // Text lines
+  ctx.fillStyle = textColor;
+  ctx.font = '16px "Noto Serif SC", serif';
+  ctx.textAlign = 'left';
+  let y = 80;
+  for (const line of lines) {
+    ctx.fillText(line, padding, y);
+    y += lineH;
+  }
+
+  // Meta
+  ctx.fillStyle = goldColor;
+  ctx.font = '12px "Noto Sans SC", sans-serif';
+  ctx.textAlign = 'left';
+  const starTxt = '★'.repeat(q.stars) + '☆'.repeat(5 - q.stars);
+  ctx.fillText(starTxt, padding, h - 60);
+
+  ctx.fillStyle = dimColor;
+  ctx.font = '10px "Noto Sans SC", sans-serif';
+  ctx.fillText('Morris 语录集 · @Morris_LT', padding, h - 38);
+
+  const link = document.createElement('a');
+  link.download = `morris-quote-${q.id}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// ====== 导出 Markdown ======
+document.getElementById('btnExport').addEventListener('click', () => {
+  let md = '# Morris 语录集\n\n> 100 条关于认知、人性、成长与生命的深度洞察\n\n';
+  categories.forEach(c => {
+    const catQuotes = quotes.filter(q => q.cat === c.id);
+    if (catQuotes.length === 0) return;
+    md += `---\n\n## ${c.icon} ${c.name}\n\n`;
+    catQuotes.forEach(q => {
+      md += `### #${q.id} ${'★'.repeat(q.stars)}${'☆'.repeat(5 - q.stars)}\n\n`;
+      md += `> ${q.text}\n\n`;
+      if (q.note) md += `- **智慧点评：** ${q.note}\n\n`;
+      if (q.knowledge) {
+        const clean = q.knowledge.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+        md += `- **知识拓展：** ${clean}\n\n`;
+      }
+    });
+  });
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'morris-quotes.md';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// ====== 附加 ID 到 quote-inner (for scroll targeting) ======
+setTimeout(() => {
+  document.querySelectorAll('.quote-inner').forEach(el => {
+    const num = el.querySelector('.quote-number');
+    if (num) el.dataset.id = num.textContent.replace('#', '');
+  });
+  renderRelated();
+}, 100);
 
 // Init
 setTimeout(observeQuotes, 100);
