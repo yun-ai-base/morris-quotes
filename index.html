@@ -1102,6 +1102,8 @@ setTimeout(() => {
 // Init
 setTimeout(observeQuotes, 100);
 document.querySelector('.tab-all').classList.add('active');
+// Visit counter
+fetch('https://api.countapi.xyz/hit/yun-ai-base/morris-quotes').catch(()=>{});
 </script>
 </body>
 </html>
