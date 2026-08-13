@@ -45,14 +45,16 @@
   --accent6: #c0396a;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; transition: background 0.3s; }
-body { transition: background 0.3s, color 0.3s; }
+html { scroll-behavior: smooth; transition: background 0.3s; color-scheme: dark; }
+html[data-theme="light"] { color-scheme: light; }
+body {
   font-family: 'Noto Sans SC', -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
 }
 body::before {
   content: '';
@@ -235,10 +237,103 @@ body::before {
 .scroll-top { position: fixed; bottom: 30px; right: 30px; z-index: 50; width: 40px; height: 40px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); font-size: 18px; cursor: pointer; display: none; align-items: center; justify-content: center; transition: all 0.25s; }
 .scroll-top:hover { color: var(--gold); border-color: var(--gold-dim); }
 
+/* ====== 新增：阅读进度条 / 长文折叠 / 导出菜单 / 星级分布 ====== */
+.reading-progress {
+  position: fixed; top: 0; left: 0; height: 2px; width: 0; z-index: 400;
+  background: linear-gradient(90deg, var(--gold), #e8d5a3);
+  transition: width 0.1s linear; pointer-events: none;
+}
+.quote-content { position: relative; }
+.quote-content.collapsed { max-height: 150px; overflow: hidden; }
+.quote-content.collapsed::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 44px;
+  background: linear-gradient(to bottom, transparent, var(--surface));
+  pointer-events: none;
+}
+.quote-knowledge { position: relative; }
+.quote-knowledge.collapsed { max-height: 104px; overflow: hidden; }
+.quote-knowledge.collapsed::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 36px;
+  background: linear-gradient(to bottom, transparent, var(--surface));
+  pointer-events: none;
+}
+.quote-toggle {
+  display: none; margin-top: 8px; font-size: 12px; color: var(--gold);
+  background: none; border: none; cursor: pointer; padding: 0; font-weight: 500;
+}
+.quote-toggle:hover { color: #e8d5a3; }
+.quote-toggle.visible { display: inline-block; }
+.export-wrap { position: relative; display: inline-block; margin-top: 16px; }
+.export-menu {
+  display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 6px; min-width: 220px; z-index: 150; box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+}
+.export-menu.show { display: block; }
+.export-menu button {
+  display: block; width: 100%; padding: 8px 12px; border-radius: 8px; border: none;
+  background: transparent; color: var(--text-dim); font-size: 12px; text-align: left; cursor: pointer; transition: all 0.15s;
+}
+.export-menu button:hover { background: var(--gold-bg); color: var(--gold); }
+.star-dist { max-width: 880px; margin: 0 auto 40px; padding: 0 24px; }
+.star-dist .sd-title { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+.sd-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; font-size: 12px; color: var(--text-dim); }
+.sd-label { width: 36px; text-align: right; flex-shrink: 0; color: var(--gold); font-feature-settings: "tnum"; }
+.sd-bar { flex: 1; height: 10px; border-radius: 5px; background: var(--surface2); overflow: hidden; }
+.sd-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--gold-dim), var(--gold)); transition: width 0.6s ease; }
+.sd-count { width: 42px; flex-shrink: 0; color: var(--text-muted); font-feature-settings: "tnum"; }
+kbd {
+  display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 11px;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim);
+  font-family: inherit; margin: 0 2px;
+}
+
+/* ====== 新增：搜索 / 星级筛选 / 收藏 ====== */
+.search-wrap { flex: 1; min-width: 120px; max-width: 260px; }
+.search-wrap input {
+  width: 100%; padding: 6px 14px; border-radius: 20px; font-size: 12px;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  outline: none; transition: all 0.25s;
+}
+.search-wrap input::placeholder { color: var(--text-muted); }
+.search-wrap input:focus { border-color: var(--gold-dim); box-shadow: 0 0 0 2px rgba(201,168,76,0.15); }
+.star-filter { display: flex; gap: 4px; }
+.star-btn {
+  padding: 5px 10px; border-radius: 20px; font-size: 11px; cursor: pointer;
+  background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+  transition: all 0.25s; white-space: nowrap; font-weight: 500;
+}
+.star-btn:hover { color: var(--text); border-color: var(--text-muted); }
+.star-btn.active { color: var(--gold); border-color: var(--gold-dim); background: var(--gold-bg); }
+.tab-fav { composes: tab; color: var(--accent1); }
+.tab-fav.active { color: var(--accent1); border-color: rgba(201,74,74,0.5); background: rgba(201,74,74,0.08); }
+.btn-fav {
+  font-size: 11px; padding: 2px 10px; border-radius: 10px; border: 1px solid var(--border);
+  color: var(--text-muted); background: transparent; cursor: pointer; font-weight: 500;
+  transition: all 0.2s; margin-left: auto;
+}
+.btn-fav:hover { color: var(--accent1); border-color: rgba(201,74,74,0.5); }
+.btn-fav.on { color: var(--accent1); border-color: rgba(201,74,74,0.5); background: rgba(201,74,74,0.08); }
+.btn-fav.on::before { content: '♥ '; }
+.btn-fav.off::before { content: '♡ '; }
+mark { background: rgba(201,168,76,0.35); color: inherit; border-radius: 3px; padding: 0 1px; }
+.cat-empty {
+  display: none; padding: 32px 24px; text-align: center; color: var(--text-muted);
+  font-size: 13px; border: 1px dashed var(--border); border-radius: 14px; margin-bottom: 28px;
+}
+.result-count { font-size: 12px; color: var(--text-muted); padding: 0 4px; white-space: nowrap; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
 @media (max-width: 640px) {
   .hero { min-height: 40vh; padding: 80px 20px 40px; }
   .controls-inner { gap: 6px; }
   .controls .tab { font-size: 11px; padding: 5px 10px; }
+  .search-wrap { flex-basis: 100%; max-width: none; order: -1; }
+  .star-filter { flex-wrap: wrap; }
+  .result-count { order: 10; }
   .quote-inner { padding: 18px 20px; }
   .quote-content { font-size: 14px; padding-right: 30px; }
   .quote-note { font-size: 12px; padding: 12px 14px; }
@@ -249,6 +344,7 @@ body::before {
 </style>
 </head>
 <body>
+<div class="reading-progress" id="readingProgress"></div>
 
 <section class="hero">
   <div class="hero-badge">X · @Morris_LT</div>
@@ -257,6 +353,8 @@ body::before {
   <div class="stats">
     <span><em>100</em> 条语录</span>
     <span><em>9</em> 大分类</span>
+    <span id="statAvg">平均 ★</span>
+    <span id="statFavs">♡ 0 收藏</span>
     <span>原文完整呈现 · 附智慧点评</span>
   </div>
   <div class="hero-divider"></div>
@@ -266,7 +364,19 @@ body::before {
   <div class="controls-inner">
     <button class="tab tab-all active" data-cat="all">全部</button>
     <div id="tabContainer"></div>
+    <div class="search-wrap">
+      <input type="search" id="searchInput" placeholder="搜索语录、点评、关键词…" autocomplete="off" aria-label="搜索语录">
+    </div>
+    <div class="star-filter" id="starFilter" role="group" aria-label="星级筛选">
+      <button class="star-btn active" data-min="1">全部</button>
+      <button class="star-btn" data-min="5" title="只看 5 星">★★★★★</button>
+      <button class="star-btn" data-min="4" title="4 星及以上">★★★★+</button>
+      <button class="star-btn" data-min="3" title="3 星及以上">★★★+</button>
+    </div>
+    <button class="tab tab-fav" id="btnFav" title="只看收藏">♡ 收藏</button>
+    <span class="result-count" id="resultCount"></span>
     <span class="controls-spacer"></span>
+    <button class="btn-random" id="btnDaily" title="按日期固定的每日一句">📅 每日一句</button>
     <button class="btn-random" id="btnRandom">🎲 随机一句</button>
     <button class="btn-theme" id="btnTheme" title="切换日间/夜间模式">🌙</button>
   </div>
@@ -294,9 +404,25 @@ body::before {
 </div>
 <div class="share-canvas-wrap" id="shareCanvasWrap"></div>
 
+<div class="star-dist">
+  <div class="sd-title">✦ 星级分布</div>
+  <div id="starDist"></div>
+</div>
+
 <div class="footer">
   <p>内容源自 X 平台 <a href="https://x.com/Morris_LT" target="_blank">@Morris_LT</a> · 分类整理与可视化</p>
-  <button class="btn-export" id="btnExport">📥 导出 Markdown</button>
+  <div class="export-wrap">
+    <button class="btn-export" id="btnExport">📥 导出</button>
+    <div class="export-menu" id="exportMenu">
+      <button data-act="md-all">Markdown · 全部语录</button>
+      <button data-act="md-cat">Markdown · 当前分类</button>
+      <button data-act="md-fav">Markdown · 我的收藏</button>
+      <button data-act="json">JSON · 全量数据</button>
+      <button data-act="copy">复制全部文本</button>
+    </div>
+  </div>
+  <p style="margin-top:18px">快捷键：<kbd>/</kbd> 搜索 · <kbd>R</kbd> 随机 · <kbd>D</kbd> 每日一句 · <kbd>T</kbd> 主题 · <kbd>Esc</kbd> 关闭</p>
+  <p style="margin-top:8px">© 2026 Morris 语录集 · 100 条认知洞察</p>
 </div>
 
 <button class="scroll-top" id="scrollTop">↑</button>
@@ -766,7 +892,31 @@ const quotes = [
 // ====== Render ======
 const content = document.getElementById('content');
 const tabContainer = document.getElementById('tabContainer');
-let currentCat = 'all';
+
+// ====== 辅助函数 ======
+function stripHtml(s) { return s.replace(/<[^>]+>/g, ' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/\s+/g, ' ').trim(); }
+function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ====== 收藏（localStorage 持久化） ======
+const FAV_KEY = 'morris-favs';
+let favs = new Set();
+try { const raw = JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); favs = new Set(Array.isArray(raw) ? raw.map(Number) : []); } catch (e) {}
+function isFav(id) { return favs.has(id); }
+function saveFavs() { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); }
+function toggleFav(id) {
+  if (favs.has(id)) favs.delete(id); else favs.add(id);
+  saveFavs(); syncFavButtons(); updateStats(); render();
+}
+function syncFavButtons() {
+  document.querySelectorAll('.btn-fav').forEach(b => {
+    const on = isFav(+b.dataset.id);
+    b.classList.toggle('on', on);
+    b.classList.toggle('off', !on);
+  });
+}
+
+// ====== 全局筛选状态 ======
+let state = { cat: 'all', query: '', minStars: 1, favOnly: false };
 
 // Stars
 function stars(n) {
@@ -779,9 +929,10 @@ categories.forEach(c => {
   btn.className = 'tab';
   btn.dataset.cat = c.id;
   btn.textContent = c.icon + ' ' + c.name;
-  btn.addEventListener('click', () => filter(c.id));
+  btn.addEventListener('click', () => setCat(c.id));
   tabContainer.appendChild(btn);
 });
+document.querySelector('.tab-all').addEventListener('click', () => setCat('all'));
 
 categories.forEach(c => {
   const sec = document.createElement('div');
@@ -813,8 +964,10 @@ categories.forEach(c => {
   catQuotes.forEach(q => {
     const div = document.createElement('div');
     div.className = 'quote';
+    const searchIdx = (q.text + ' ' + (q.note || '') + ' ' + stripHtml(q.knowledge || '') + ' ' + c.name).toLowerCase();
+    const favState = isFav(q.id) ? 'on' : 'off';
     div.innerHTML = `
-      <div class="quote-inner" style="border-left:3px solid ${catColor}">
+      <div class="quote-inner" style="border-left:3px solid ${catColor}" data-id="${q.id}" data-stars="${q.stars}" data-search="${escAttr(searchIdx)}">
         <div class="quote-number">#${q.id}</div>
         <div class="quote-content">${q.text}</div>
         ${q.note ? `<div class="quote-note"><div class="note-label">🧠 智慧点评</div>${q.note}</div>` : ''}
@@ -823,6 +976,7 @@ categories.forEach(c => {
         <div class="quote-meta">
           ${stars(q.stars)}
           <span class="quote-tag">${c.icon} ${c.name}</span>
+          <button class="btn-fav ${favState}" data-id="${q.id}" title="收藏到我的语录">收藏</button>
           <button class="btn-share" data-id="${q.id}">🔗 分享</button>
         </div>
       </div>
@@ -832,22 +986,125 @@ categories.forEach(c => {
   sec.dataset.cat = c.id;
 });
 document.querySelectorAll('.cat-section').forEach(s => s.classList.add('active'));
+renderStarDist();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(initCollapse);
+else setTimeout(initCollapse, 100);
 
-// Filter
-function filter(catId) {
-  currentCat = catId;
-  document.querySelectorAll('.tab, .tab-all').forEach(t => t.classList.remove('active'));
-  if (catId === 'all') {
-    document.querySelector('.tab-all').classList.add('active');
-    document.querySelectorAll('.cat-section').forEach(s => s.classList.add('active'));
-  } else {
-    document.querySelector(`.tab[data-cat="${catId}"]`).classList.add('active');
-    document.querySelectorAll('.cat-section').forEach(s => s.classList.remove('active'));
-    document.getElementById('sec-' + catId).classList.add('active');
-  }
-  observeQuotes();
+// ====== 分类切换 ======
+function setCat(catId) {
+  state.cat = catId;
+  updateHash();
+  render();
   document.getElementById('controls').scrollIntoView({ behavior: 'smooth' });
 }
+
+// ====== 统一渲染（分类 + 搜索 + 星级 + 收藏） ======
+function render() {
+  document.querySelectorAll('.tab, .tab-all').forEach(t => t.classList.remove('active'));
+  if (state.cat === 'all') document.querySelector('.tab-all').classList.add('active');
+  else document.querySelector(`.tab[data-cat="${state.cat}"]`)?.classList.add('active');
+  document.getElementById('btnFav').classList.toggle('active', state.favOnly);
+  document.querySelectorAll('.cat-section').forEach(s => {
+    const show = state.cat === 'all' || s.id === 'sec-' + state.cat;
+    s.classList.toggle('active', show);
+  });
+  const ql = state.query.toLowerCase();
+  let visible = 0, total = 0;
+  document.querySelectorAll('.quote').forEach(q => {
+    const inner = q.querySelector('.quote-inner');
+    total++;
+    const secShow = state.cat === 'all' || q.closest('.cat-section').id === 'sec-' + state.cat;
+    const matchQ = !state.query || inner.dataset.search.includes(ql);
+    const matchS = (+inner.dataset.stars) >= state.minStars;
+    const matchF = !state.favOnly || isFav(+inner.dataset.id);
+    const ok = secShow && matchQ && matchS && matchF;
+    q.style.display = ok ? '' : 'none';
+    if (ok) visible++;
+    if (state.query) {
+      if (matchQ) highlight(q, state.query);
+      else clearHighlight(q);
+    } else clearHighlight(q);
+  });
+  document.querySelectorAll('.cat-section').forEach(s => {
+    const quotes = s.querySelectorAll('.quote');
+    const anyVisible = [...quotes].some(x => x.style.display !== 'none');
+    let hint = s.querySelector('.cat-empty');
+    if (quotes.length && !anyVisible) {
+      if (!hint) { hint = document.createElement('div'); hint.className = 'cat-empty'; s.appendChild(hint); }
+      hint.style.display = 'block';
+      hint.textContent = '没有匹配的语录，换个关键词或筛选条件试试。';
+    } else if (hint) hint.style.display = 'none';
+  });
+  document.getElementById('resultCount').textContent = visible && (state.query || state.minStars > 1 || state.favOnly || state.cat !== 'all') ? `${visible} / ${total} 条` : '';
+  observeQuotes();
+}
+
+// ====== 搜索词高亮 ======
+function clearHighlight(q) {
+  q.querySelectorAll('.quote-content, .quote-note, .quote-knowledge').forEach(el => {
+    el.querySelectorAll('mark').forEach(m => m.replaceWith(document.createTextNode(m.textContent)));
+    el.normalize();
+  });
+}
+function highlight(q, query) {
+  clearHighlight(q);
+  const ql = query.toLowerCase();
+  q.querySelectorAll('.quote-content, .quote-note, .quote-knowledge').forEach(el => {
+    el.querySelectorAll('mark').forEach(m => m.replaceWith(document.createTextNode(m.textContent)));
+    el.normalize();
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const targets = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (node.parentElement && node.parentElement.tagName === 'MARK') continue;
+      if (node.textContent.toLowerCase().includes(ql)) targets.push(node);
+    }
+    targets.forEach(node => {
+      const text = node.textContent, lower = text.toLowerCase();
+      const frag = document.createDocumentFragment();
+      let last = 0, idx;
+      while ((idx = lower.indexOf(ql, last)) !== -1) {
+        frag.appendChild(document.createTextNode(text.slice(last, idx)));
+        const mk = document.createElement('mark');
+        mk.textContent = text.slice(idx, idx + query.length);
+        frag.appendChild(mk);
+        last = idx + query.length;
+      }
+      frag.appendChild(document.createTextNode(text.slice(last)));
+      node.replaceWith(frag);
+    });
+  });
+}
+
+// ====== URL Hash 路由（#cat= / #q= / #fav=1） ======
+function updateHash() {
+  const parts = [];
+  if (state.cat !== 'all') parts.push('cat=' + state.cat);
+  if (state.favOnly) parts.push('fav=1');
+  const target = parts.join('&');
+  if (location.hash.replace(/^#/, '') !== target) {
+    history.replaceState(null, '', target ? '#' + target : location.pathname + location.search);
+  }
+}
+function applyHash() {
+  const h = location.hash.replace(/^#/, '');
+  const params = new URLSearchParams(h);
+  const cat = params.get('cat'), fav = params.get('fav'), qid = params.get('q');
+  if (cat && categories.some(c => c.id === cat)) state.cat = cat;
+  else if (!cat) state.cat = 'all';
+  state.favOnly = fav === '1';
+  render();
+  if (qid) {
+    setTimeout(() => {
+      const target = document.querySelector(`.quote-inner[data-id="${qid}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.classList.remove('flash'); void target.offsetWidth; target.classList.add('flash');
+      }
+    }, 300);
+  }
+}
+window.addEventListener('hashchange', applyHash);
 
 // Scroll observer
 let quoteObserver;
@@ -862,9 +1119,16 @@ function observeQuotes() {
   });
 }
 
-// Random
+// ====== 随机一句（基于当前筛选） ======
 document.getElementById('btnRandom').addEventListener('click', () => {
-  const pool = currentCat === 'all' ? quotes : quotes.filter(q => q.cat === currentCat);
+  let pool = quotes.filter(q => {
+    if (state.cat !== 'all' && q.cat !== state.cat) return false;
+    if (q.stars < state.minStars) return false;
+    if (state.favOnly && !isFav(q.id)) return false;
+    if (state.query && !(q.text + ' ' + (q.note || '') + ' ' + stripHtml(q.knowledge || '')).toLowerCase().includes(state.query.toLowerCase())) return false;
+    return true;
+  });
+  if (pool.length === 0) pool = quotes;
   const q = pool[Math.floor(Math.random() * pool.length)];
   const c = categories.find(c => c.id === q.cat);
   const mb = document.getElementById('modalBox');
@@ -878,6 +1142,50 @@ document.getElementById('btnRandom').addEventListener('click', () => {
   `;
   document.getElementById('modal').classList.add('show');
 });
+
+// ====== 每日一句（按日期种子，当日固定） ======
+document.getElementById('btnDaily').addEventListener('click', () => {
+  const dayIdx = Math.floor(Date.now() / 86400000);
+  const q = quotes[((dayIdx % quotes.length) + quotes.length) % quotes.length];
+  const c = categories.find(c => c.id === q.cat);
+  const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+  const mb = document.getElementById('modalBox');
+  mb.innerHTML = `
+    <div style="margin-bottom:8px;font-size:12px;color:${c?c.color:'var(--gold)'};font-weight:600">📅 ${today} · 每日一句</div>
+    <div class="quote-content">${q.text}</div>
+    ${q.note ? `<div class="quote-note"><div class="note-label">🧠 智慧点评</div>${q.note}</div>` : ''}
+    ${q.knowledge ? `<div class="quote-knowledge"><div class="knowledge-label">📚 知识拓展</div>${q.knowledge}</div>` : ''}
+    <div class="quote-meta">${stars(q.stars)}</div>
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('show')">关闭</button>
+  `;
+  document.getElementById('modal').classList.add('show');
+});
+
+// ====== 搜索 ======
+document.getElementById('searchInput').addEventListener('input', () => {
+  state.query = document.getElementById('searchInput').value.trim();
+  render();
+});
+
+// ====== 星级筛选 ======
+document.getElementById('starFilter').addEventListener('click', (e) => {
+  const btn = e.target.closest('.star-btn');
+  if (!btn) return;
+  state.minStars = +btn.dataset.min;
+  document.querySelectorAll('.star-btn').forEach(b => b.classList.toggle('active', b === btn));
+  render();
+});
+
+// ====== 收藏切换 & 收藏按钮 ======
+document.getElementById('btnFav').addEventListener('click', () => {
+  state.favOnly = !state.favOnly;
+  updateHash();
+  render();
+});
+document.addEventListener('click', (e) => {
+  const favBtn = e.target.closest('.btn-fav');
+  if (favBtn) toggleFav(+favBtn.dataset.id);
+});
 document.getElementById('modal').addEventListener('click', (e) => {
   if (e.target === e.currentTarget) e.target.classList.remove('show');
 });
@@ -890,13 +1198,29 @@ const scrollBtn = document.getElementById('scrollTop');
 window.addEventListener('scroll', () => { scrollBtn.style.display = window.scrollY > 600 ? 'flex' : 'none'; });
 scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-// ====== 关联推荐 ======
+// ====== 关联推荐（关键词重叠评分） ======
+const STOP_WORDS = new Set('一个 一种 一些 不是 而是 自己 很多 真正 什么 如何 因为 所以 如果 但是 这个 那个 的人 的事 不断 没有 就是 他们 我们 你们 大家 时候 地方 东西 世界 生活 人生 生命 一个人 你觉得 你会发现 本质上 很多时候 往往 越来越 不会 不能 不要 可以 需要 应该 必须 可能 已经 还是 或者 只是 但是 同时 然后 最后 首先 其次 对于 关于 通过 作为 成为 这样 那样 那里 这里 之中 之间 之中 之后 之前 现在 未来 过去 今天 明天 昨天 每天 每次 一种 一场 一次 一切 一直 一样 一起 一定 一旦 一直 一般 一条 一句 一个人 是不是 有没有 能不能 会不会 有没有 做什么 说什么 为什么 怎么样 怎么办'.split(/\s+/));
+function keywords(q) {
+  const txt = (q.text + ' ' + (q.note || '')).toLowerCase();
+  const words = txt.match(/[\u4e00-\u9fa5]{2,4}/g) || [];
+  const freq = {};
+  words.forEach(w => { if (!STOP_WORDS.has(w)) freq[w] = (freq[w] || 0) + 1; });
+  return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 8).map(x => x[0]);
+}
 function computeRelated() {
+  const kw = {};
+  quotes.forEach(q => kw[q.id] = keywords(q));
   quotes.forEach(q => {
-    const sameCat = quotes.filter(x => x.id !== q.id && x.cat === q.cat);
-    const byStar = sameCat.filter(x => Math.abs(x.stars - q.stars) <= 1);
-    const pool = byStar.length >= 2 ? byStar : sameCat;
-    q.related = pool.sort((a, b) => b.stars - a.stars).slice(0, 3);
+    const scored = quotes.filter(x => x.id !== q.id).map(x => {
+      let s = 0;
+      if (x.cat === q.cat) s += 3;
+      s += Math.max(0, 2 - Math.abs(x.stars - q.stars));
+      const overlap = kw[q.id].filter(w => kw[x.id].includes(w)).length;
+      s += Math.min(overlap, 3) * 1.5;
+      return { q: x, s };
+    });
+    scored.sort((a, b) => b.s - a.s);
+    q.related = scored.slice(0, 3).map(x => x.q);
   });
 }
 computeRelated();
@@ -949,6 +1273,8 @@ document.addEventListener('click', (e) => {
   const btn = e.target.closest('.btn-share');
   if (!btn) return;
   shareQuoteId = parseInt(btn.dataset.id);
+  const qp = state.cat !== 'all' ? 'cat=' + state.cat + '&' : '';
+  history.replaceState(null, '', '#' + qp + 'q=' + shareQuoteId);
   const q = quotes.find(x => x.id === shareQuoteId);
   const c = categories.find(x => x.id === q.cat);
   document.getElementById('spNum').textContent = `#${q.id} · ${c.icon} ${c.name}`;
@@ -997,7 +1323,7 @@ document.getElementById('shareImage').addEventListener('click', () => {
   }
   if (cur) lines.push(cur);
   const textH = lines.length * lineH;
-  const h = textH + titleH + 140;
+  const h = textH + titleH + 170;
   const w = 500;
 
   const canvas = document.createElement('canvas');
@@ -1013,9 +1339,11 @@ document.getElementById('shareImage').addEventListener('click', () => {
   ctx.fillStyle = surfaceColor;
   roundRect(ctx, 16, 16, w - 32, h - 32, 16);
 
-  // Gold accent line
+  // Category color bar + gold accent
+  const cat = categories.find(x => x.id === q.cat);
+  if (cat) { ctx.fillStyle = cat.color; ctx.fillRect(16, 16, 5, h - 32); }
   ctx.fillStyle = goldColor;
-  ctx.fillRect(28, 56, 44, 3);
+  ctx.fillRect(34, 56, 44, 3);
 
   // Number
   ctx.fillStyle = dimColor;
@@ -1034,9 +1362,13 @@ document.getElementById('shareImage').addEventListener('click', () => {
   }
 
   // Meta
-  ctx.fillStyle = goldColor;
+  ctx.fillStyle = dimColor;
   ctx.font = '12px "Noto Sans SC", sans-serif';
   ctx.textAlign = 'left';
+  ctx.fillText(cat ? cat.icon + ' ' + cat.name : '', padding, h - 86);
+
+  ctx.fillStyle = goldColor;
+  ctx.font = '12px "Noto Sans SC", sans-serif';
   const starTxt = '★'.repeat(q.stars) + '☆'.repeat(5 - q.stars);
   ctx.fillText(starTxt, padding, h - 60);
 
@@ -1065,11 +1397,11 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.fill();
 }
 
-// ====== 导出 Markdown ======
-document.getElementById('btnExport').addEventListener('click', () => {
-  let md = '# Morris 语录集\n\n> 100 条关于认知、人性、成长与生命的深度洞察\n\n';
+// ====== 导出（菜单：MD 全部/分类/收藏 · JSON · 复制） ======
+function buildMarkdown(list, title) {
+  let md = '# Morris 语录集' + (title ? ' · ' + title : '') + '\n\n> 100 条关于认知、人性、成长与生命的深度洞察\n\n';
   categories.forEach(c => {
-    const catQuotes = quotes.filter(q => q.cat === c.id);
+    const catQuotes = list.filter(q => q.cat === c.id);
     if (catQuotes.length === 0) return;
     md += `---\n\n## ${c.icon} ${c.name}\n\n`;
     catQuotes.forEach(q => {
@@ -1082,12 +1414,49 @@ document.getElementById('btnExport').addEventListener('click', () => {
       }
     });
   });
-  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'morris-quotes.md';
-  a.click();
-  URL.revokeObjectURL(url);
+  return md;
+}
+function downloadFile(filename, content, mime) {
+  try {
+    const blob = new Blob([content], { type: mime + ';charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 1000);
+  } catch (err) { console.warn('download failed:', err); }
+}
+const exportMenu = document.getElementById('exportMenu');
+document.getElementById('btnExport').addEventListener('click', (e) => {
+  e.stopPropagation();
+  exportMenu.classList.toggle('show');
+});
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.export-wrap')) exportMenu.classList.remove('show');
+});
+exportMenu.addEventListener('click', (e) => {
+  const actBtn = e.target.closest('button[data-act]');
+  if (!actBtn) return;
+  const act = actBtn.dataset.act;
+  const c = state.cat !== 'all' ? categories.find(x => x.id === state.cat) : null;
+  const catName = c ? c.name : '';
+  if (act === 'md-all') downloadFile('morris-quotes.md', buildMarkdown(quotes, '全部语录'), 'text/markdown');
+  else if (act === 'md-cat') downloadFile('morris-quotes-' + catName + '.md', buildMarkdown(c ? quotes.filter(q => q.cat === c.id) : quotes, catName || '全部语录'), 'text/markdown');
+  else if (act === 'md-fav') {
+    const favList = quotes.filter(q => favs.has(q.id));
+    if (favList.length === 0) { alert('还没有收藏任何语录，先点卡片上的 ♡ 收藏几条吧'); }
+    else downloadFile('morris-favorites.md', buildMarkdown(favList, '我的收藏'), 'text/markdown');
+  }
+  else if (act === 'json') downloadFile('morris-quotes.json', JSON.stringify({ categories, quotes }, null, 2), 'application/json');
+  else if (act === 'copy') {
+    const text = quotes.map(q => `#${q.id} ${q.text}`).join('\n\n');
+    navigator.clipboard.writeText(text).then(() => {
+      actBtn.textContent = '✅ 已复制';
+      setTimeout(() => { actBtn.textContent = '复制全部文本'; }, 1500);
+    }).catch(() => alert('复制失败，请手动复制'));
+  }
+  exportMenu.classList.remove('show');
 });
 
 // ====== 附加 ID 到 quote-inner (for scroll targeting) ======
@@ -1099,11 +1468,94 @@ setTimeout(() => {
   renderRelated();
 }, 100);
 
+// ====== 长文折叠（正文 / 知识拓展） ======
+function initCollapse() {
+  const thresholds = { 'quote-content': 150, 'quote-knowledge': 104 };
+  const labels = { 'quote-content': ['展开全文', '收起全文'], 'quote-knowledge': ['展开知识拓展', '收起知识拓展'] };
+  document.querySelectorAll('.quote-inner').forEach(inner => {
+    Object.keys(thresholds).forEach(cls => {
+      const el = inner.querySelector('.' + cls);
+      if (!el || el.scrollHeight <= thresholds[cls]) return;
+      el.classList.add('collapsed');
+      const btn = document.createElement('button');
+      btn.className = 'quote-toggle visible';
+      btn.type = 'button';
+      btn.textContent = labels[cls][0] + ' ▾';
+      btn.addEventListener('click', () => {
+        const isCollapsed = el.classList.toggle('collapsed');
+        btn.textContent = (isCollapsed ? labels[cls][0] : labels[cls][1]) + (isCollapsed ? ' ▾' : ' ▴');
+      });
+      el.insertAdjacentElement('afterend', btn);
+    });
+  });
+}
+
+// ====== 星级分布可视化 ======
+function renderStarDist() {
+  const dist = [0, 0, 0, 0, 0];
+  quotes.forEach(q => { dist[q.stars - 1]++; });
+  const max = Math.max(...dist);
+  document.getElementById('starDist').innerHTML = dist.map((n, i) => n > 0 ? `
+    <div class="sd-row">
+      <span class="sd-label">${'★'.repeat(i + 1)}</span>
+      <div class="sd-bar"><div class="sd-fill" style="width:${(n / max) * 100}%"></div></div>
+      <span class="sd-count">${n} 条</span>
+    </div>` : '').join('');
+}
+
+// ====== 阅读进度条 ======
+window.addEventListener('scroll', () => {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = h > 0 ? (window.scrollY / h) * 100 : 0;
+  document.getElementById('readingProgress').style.width = pct + '%';
+});
+
+// ====== 键盘快捷键 ======
+document.addEventListener('keydown', (e) => {
+  const t = e.target;
+  if (t && t.tagName && t.matches && t.matches('input, textarea')) {
+    if (e.key === 'Escape') t.blur();
+    return;
+  }
+  if (e.key === '/') { e.preventDefault(); document.getElementById('searchInput').focus(); }
+  else if (e.key.toLowerCase() === 'r') document.getElementById('btnRandom').click();
+  else if (e.key.toLowerCase() === 'd') document.getElementById('btnDaily').click();
+  else if (e.key.toLowerCase() === 't') document.getElementById('btnTheme').click();
+  else if (e.key === 'Escape') {
+    document.getElementById('modal').classList.remove('show');
+    document.getElementById('shareModal').classList.remove('show');
+    exportMenu.classList.remove('show');
+  }
+});
+
+// ====== 滚动位置记忆 ======
+const SCROLL_KEY = 'morris-scroll';
+let lastScrollSave = 0;
+window.addEventListener('scroll', () => {
+  const now = Date.now();
+  if (now - lastScrollSave > 500) {
+    lastScrollSave = now;
+    localStorage.setItem(SCROLL_KEY, String(window.scrollY));
+  }
+});
+
+// ====== 动态统计 ======
+function updateStats() {
+  const avg = (quotes.reduce((s, q) => s + q.stars, 0) / quotes.length).toFixed(1);
+  document.getElementById('statAvg').innerHTML = `平均 <em>★ ${avg}</em>`;
+  document.getElementById('statFavs').textContent = `♡ ${favs.size} 收藏`;
+}
+
 // Init
-setTimeout(observeQuotes, 100);
-document.querySelector('.tab-all').classList.add('active');
-// Visit counter
-fetch('http://localhost:3456/hit/morris-quotes').catch(()=>{});
+applyHash();
+updateStats();
+setTimeout(() => {
+  observeQuotes();
+  if (!location.hash.includes('q=')) {
+    const saved = +localStorage.getItem(SCROLL_KEY) || 0;
+    if (saved > 0) window.scrollTo(0, saved);
+  }
+}, 100);
 </script>
 </body>
 </html>
